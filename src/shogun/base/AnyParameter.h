@@ -50,6 +50,16 @@ namespace shogun
 			return m_gradient;
 		}
 
+		/** serialize the object using cereal
+		 *
+		 * @param ar Archive type
+		 */
+		template<class Archive>
+		void serialize(Archive& ar)
+		{
+			ar(m_model_selection, m_gradient);
+		}
+
 	private:
 		EModelSelectionAvailability m_model_selection;
 		EGradientAvailability m_gradient;
@@ -86,6 +96,16 @@ namespace shogun
 		AnyParameterProperties get_properties() const
 		{
 			return m_properties;
+		}
+
+		/** serialize the object using cereal
+		 *
+		 * @param ar Archive type
+		 */
+		template<class Archive>
+		void serialize(Archive& ar)
+		{
+			ar(m_value, m_properties);
 		}
 
 	private:
