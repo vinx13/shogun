@@ -123,8 +123,6 @@ static inline complex128_t function(complex128_t a)	\
 
 namespace shogun
 {
-	/** random number generator */
-	extern CRandom* sg_rand;
 /** @brief Class which collects generic mathematical functions
  */
 class CMath : public CSGObject
@@ -856,11 +854,9 @@ class CMath : public CSGObject
 		static void init_random(uint32_t initseed=0)
 		{
 			if (initseed==0)
-				seed = CRandom::generate_seed();
+				m_rng->set_seed(CRandom::generate_seed());
 			else
-				seed=initseed;
-
-			sg_rand->set_seed(seed);
+				m_rng->set_seed(initseed);
 		}
 
 		/** Returns random number
@@ -868,7 +864,8 @@ class CMath : public CSGObject
 		 */
 		static inline uint64_t random()
 		{
-			return sg_rand->random_64();
+			uint64_t result = m_rng->random_64();
+			return result;
 		}
 
 		/** Returns random number
@@ -876,7 +873,8 @@ class CMath : public CSGObject
 		 */
 		static inline uint64_t random(uint64_t min_value, uint64_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			uint64_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -886,7 +884,8 @@ class CMath : public CSGObject
 		 */
 		static inline int64_t random(int64_t min_value, int64_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			int64_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -896,7 +895,8 @@ class CMath : public CSGObject
 		 */
 		static inline uint32_t random(uint32_t min_value, uint32_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			uint32_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -906,7 +906,8 @@ class CMath : public CSGObject
 		 */
 		static inline int32_t random(int32_t min_value, int32_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			int32_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -916,7 +917,8 @@ class CMath : public CSGObject
 		 */
 		static inline float32_t random(float32_t min_value, float32_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			float32_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -926,7 +928,8 @@ class CMath : public CSGObject
 		 */
 		static inline float64_t random(float64_t min_value, float64_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			float64_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/** Returns random number between minimum and maximum value
@@ -936,7 +939,8 @@ class CMath : public CSGObject
 		 */
 		static inline floatmax_t random(floatmax_t min_value, floatmax_t max_value)
 		{
-			return sg_rand->random(min_value, max_value);
+			floatmax_t result = m_rng->random(min_value, max_value);
+			return result;
 		}
 
 		/// Returns a Gaussian or Normal random number.
@@ -967,7 +971,8 @@ class CMath : public CSGObject
 		/// http://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform#Polar_form
 		static inline float64_t normal_random(float64_t mean, float64_t std_dev)
 		{
-			return sg_rand->normal_distrib(mean, std_dev);
+			float64_t result = m_rng->normal_distrib(mean, std_dev);
+			return result;
 		}
 
 		/// Convenience method for generating Standard Normal random numbers
@@ -981,7 +986,8 @@ class CMath : public CSGObject
 		/// Double: Mean = 0 and Standard Deviation = 1
 		static inline float64_t randn_double()
 		{
-			return sg_rand->std_normal_distrib();
+			float64_t result = m_rng->std_normal_distrib();
+			return result;
 		}
 		//@}
 
@@ -1805,12 +1811,6 @@ class CMath : public CSGObject
 			return c.imag();
 		}
 
-		/// returns number generator seed
-		inline static uint32_t get_seed()
-		{
-			return CMath::seed;
-		}
-
 		/// returns range of logtable
 		inline static uint32_t get_log_range()
 		{
@@ -1949,12 +1949,11 @@ class CMath : public CSGObject
 				static const float32_t F_MIN_VAL32;
 				static const float64_t F_MIN_VAL64;
 
-	protected:
-				/// range for logtable: log(1+exp(x))  -LOGRANGE <= x <= 0
-				static int32_t LOGRANGE;
+		        static CRandom* m_rng;
 
-				/// random generator seed
-				static uint32_t seed;
+		    protected:
+		        /// range for logtable: log(1+exp(x))  -LOGRANGE <= x <= 0
+		        static int32_t LOGRANGE;
 
 #ifdef USE_LOGCACHE
 

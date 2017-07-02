@@ -27,6 +27,8 @@
 
 #include <utility>
 
+#include <memory>
+
 /** \namespace shogun
  * @brief all of classes and functions are contained in the shogun namespace
  */
@@ -38,6 +40,7 @@ class Parallel;
 class Parameter;
 class CSerializableFile;
 class ParameterObserverInterface;
+class CRandom;
 
 template <class T, class K> class CMap;
 
@@ -521,6 +524,11 @@ public:
 	 */
 	virtual CSGObject* clone();
 
+	/** Set random seed
+	 * @param seed seed for random generator
+	 */
+	void set_seed(int32_t seed);
+
 protected:
 	/* Iteratively clones all parameters of the provided instance into this instance.
 	 * This will fail if the objects have different sets of registered parameters,
@@ -616,6 +624,10 @@ public:
 
 	/** Hash of parameter values*/
 	uint32_t m_hash;
+
+protected:
+	/** random generator */
+	std::unique_ptr<CRandom> m_rng;
 
 private:
 
