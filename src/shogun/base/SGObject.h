@@ -13,6 +13,7 @@
 #ifndef __SGOBJECT_H__
 #define __SGOBJECT_H__
 
+#include <random>
 #include <shogun/base/Version.h>
 #include <shogun/base/unique.h>
 #include <shogun/io/SGIO.h>
@@ -40,7 +41,6 @@ class Parallel;
 class Parameter;
 class CSerializableFile;
 class ParameterObserverInterface;
-class CRandom;
 
 template <class T, class K> class CMap;
 
@@ -619,10 +619,6 @@ public:
 
 	/** Hash of parameter values*/
 	uint32_t m_hash;
-
-protected:
-	/** random generator */
-	std::unique_ptr<CRandom> m_rng;
 
 private:
 
