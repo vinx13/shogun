@@ -873,8 +873,8 @@ class CMath : public CSGObject
 		}
 
 		template <
-		    class T,
-		    class RandomGenerator = std::uniform_int_distribution<index_t>>
+			class T,
+			class RandomGenerator = std::uniform_int_distribution<index_t>>
 		static void permute(SGVector<T> v)
 		{
 			auto prng = get_prng();
@@ -886,8 +886,8 @@ class CMath : public CSGObject
 		}
 
 		template <
-		    class T, class RandomGenerator,
-		    class Distribution = std::uniform_int_distribution<index_t>>
+			class T, class RandomGenerator,
+			class Distribution = std::uniform_int_distribution<index_t>>
 		static void permute(SGVector<T> v, RandomGenerator prng)
 		{
 			for (index_t i = 0; i < v.vlen; ++i)
