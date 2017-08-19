@@ -242,20 +242,16 @@ float64_t CCrossValidation::evaluate_one_run(
 			SG_REF(fold)
 
 			CMachine* machine;
-			CFeatures* features;
-			CLabels* labels;
 			CEvaluation* evaluation_criterion;
 
 			if (get_global_parallel()->get_num_threads() == 1)
 			{
 				machine = m_machine;
-				features = m_features;
 				evaluation_criterion = m_evaluation_criterion;
 			}
 			else
 			{
 				machine = (CMachine*)m_machine->clone();
-				features = (CFeatures*)m_features->clone();
 				evaluation_criterion =
 				    (CEvaluation*)m_evaluation_criterion->clone();
 			}
@@ -264,18 +260,12 @@ float64_t CCrossValidation::evaluate_one_run(
 			fold->set_run_index(index);
 			fold->set_fold_index(i);
 
-			/* set feature subset for training */
+			/* create indices vector for training */
 			SGVector<index_t> inverse_subset_indices =
 			    m_splitting_strategy->generate_subset_inverse(i);
 
-			features->add_subset(inverse_subset_indices);
-
-			/* set label subset for training */
-			if (get_global_parallel()->get_num_threads() == 1)
-				labels = m_labels;
-			else
-				labels = machine->get_labels();
-			labels->add_subset(inverse_subset_indices);
+			/* set label view for training */
+			machine->set_labels(m_labels->view(inverse_subset_indices));
 
 			SG_DEBUG("training set %d:\n", i)
 			if (io->get_loglevel() == MSG_DEBUG)
@@ -287,7 +277,7 @@ float64_t CCrossValidation::evaluate_one_run(
 
 			/* train machine on training features and remove subset */
 			SG_DEBUG("starting training\n")
-			machine->train(features);
+			machine->train(m_features->view(inverse_subset_indices));
 			SG_DEBUG("finished training\n")
 
 			/* evtl. update xvalidation output class */
@@ -296,17 +286,13 @@ float64_t CCrossValidation::evaluate_one_run(
 			fold->set_trained_machine(fold_machine);
 			SG_UNREF(fold_machine)
 
-			features->remove_subset();
-			labels->remove_subset();
-
-			/* set feature subset for testing (subset method that stores
-			 * pointer) */
+			/* create feature view for testing */
 			SGVector<index_t> subset_indices =
 			    m_splitting_strategy->generate_subset_indices(i);
-			features->add_subset(subset_indices);
+			auto test_features = m_features->view(subset_indices);
 
-			/* set label subset for testing */
-			labels->add_subset(subset_indices);
+			/* create label view for testing */
+			auto test_labels = m_labels->view(subset_indices);
 
 			SG_DEBUG("test set %d:\n", i)
 			if (io->get_loglevel() == MSG_DEBUG)
@@ -317,34 +303,29 @@ float64_t CCrossValidation::evaluate_one_run(
 
 			/* apply machine to test features and remove subset */
 			SG_DEBUG("starting evaluation\n")
-			SG_DEBUG("%p\n", features)
-			CLabels* result_labels = machine->apply(features);
+			SG_DEBUG("%p\n", test_features)
+			CLabels* result_labels = machine->apply(test_features);
 			SG_DEBUG("finished evaluation\n")
-			features->remove_subset();
 			SG_REF(result_labels);
 
 			/* evaluate */
-			results[i] = evaluation_criterion->evaluate(result_labels, labels);
+			results[i] =
+			    evaluation_criterion->evaluate(result_labels, test_labels);
 			SG_DEBUG("result on fold %d is %f\n", i, results[i])
 
 			/* evtl. update xvalidation output class */
 			fold->set_test_indices(subset_indices);
 			fold->set_test_result(result_labels);
-			CLabels* true_labels = (CLabels*)labels->clone();
-			fold->set_test_true_result(true_labels);
-			SG_UNREF(true_labels)
+			fold->set_test_true_result(test_labels);
 			fold->post_update_results();
 			fold->set_evaluation_result(results[i]);
 
 			storage->append_fold_result(fold);
 
 			/* clean up, remove subsets */
-			labels->remove_subset();
 			if (get_global_parallel()->get_num_threads() != 1)
 			{
 				SG_UNREF(machine);
-				SG_UNREF(features);
-				SG_UNREF(labels);
 				SG_UNREF(evaluation_criterion);
 			}
 			SG_UNREF(result_labels);

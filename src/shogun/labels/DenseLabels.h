@@ -46,6 +46,9 @@ class CDenseLabels : public CLabels
 		 */
 		CDenseLabels(CFile* loader);
 
+		/** copy constructor */
+		CDenseLabels(const CDenseLabels& orig);
+
 		/** destructor */
 		virtual ~CDenseLabels();
 

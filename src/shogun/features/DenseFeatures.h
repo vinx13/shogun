@@ -200,7 +200,7 @@ public:
 	 *
 	 * @return matrix feature matrix
 	 */
-	SGMatrix<ST> get_feature_matrix();
+	const SGMatrix<ST>& get_feature_matrix();
 
 	/** steals feature matrix, i.e. returns matrix and
 	 * forget about it
@@ -232,7 +232,7 @@ public:
 	 * @param num_vec number of vectors in matrix
 	 * @return feature matrix
 	 */
-	ST* get_feature_matrix(int32_t &num_feat, int32_t &num_vec);
+	const ST* get_feature_matrix(int32_t& num_feat, int32_t& num_vec);
 
 	/** get a transposed copy of the features
 	 *
@@ -495,6 +495,21 @@ public:
 	 */
 	CFeatures* create_merged_copy(CFeatures* other);
 
+	/** Creates a subset view of the features
+	 * @see CFeatures::view
+	 */
+	Some<CDenseFeatures<ST>> view(const SGVector<index_t>& subset);
+
+	/** Creates a subset view of the features
+	 * @see CFeatures::view
+	 */
+	Some<CDenseFeatures<ST>> view(const std::vector<index_t>& subset);
+
+	/** apply preprocessor
+	 * @see CFeatures::preprocess
+	 */
+	Some<CDenseFeatures<ST>> preprocess(CPreprocessor* p);
+
 	/** helper method used to specialize a base class instance
 	 *
 	 */
@@ -524,6 +539,9 @@ protected:
 
 private:
 	void init();
+
+	/** preprocessors and subsets evaluation implementation */
+	virtual void eval_features();
 
 protected:
 	/*

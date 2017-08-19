@@ -386,8 +386,8 @@ SGMatrix<float64_t> CRandomFourierGaussPreproc::apply_to_feature_matrix(CFeature
 
 	int32_t num_vectors = 0;
 	int32_t num_features = 0;
-	float64_t* m = ((CDenseFeatures<float64_t>*) features)->get_feature_matrix(
-			num_features, num_vectors);
+	const float64_t* m = ((CDenseFeatures<float64_t>*)features)
+	                         ->get_feature_matrix(num_features, num_vectors);
 	SG_INFO("get Feature matrix: %ix%i\n", num_vectors, num_features)
 
 	if (num_features!=cur_dim_input_space)
@@ -406,8 +406,13 @@ SGMatrix<float64_t> CRandomFourierGaussPreproc::apply_to_feature_matrix(CFeature
 		{
 			for (int32_t od = 0; od < cur_dim_feature_space; ++od)
 			{
-				SGVector<float64_t> a(m+vec * num_features, cur_dim_input_space, false);
-				SGVector<float64_t> b(randomcoeff_multiplicative+od*cur_dim_input_space, cur_dim_input_space, false);
+				SGVector<float64_t> a(
+				    const_cast<float64_t*>(m + vec * num_features),
+				    cur_dim_input_space, false);
+				SGVector<float64_t> b(
+				    const_cast<float64_t*>(
+				        randomcoeff_multiplicative + od * cur_dim_input_space),
+				    cur_dim_input_space, false);
 				res.matrix[od + vec * cur_dim_feature_space] = val * cos(
 						randomcoeff_additive[od]
 								+ linalg::dot(a, b));
