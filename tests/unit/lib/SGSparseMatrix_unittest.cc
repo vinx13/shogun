@@ -286,3 +286,47 @@ TEST(SGSparseMatrix, transposed_square_matrix)
 			EXPECT_NEAR(sparse_matrix(feat_index,vec_index), sparse_matrix_t(vec_index,feat_index), 1E-14);
 	}
 }
+
+TEST(SGSparseMatrix, equals_same_shape)
+{
+	const index_t number_of_features = 2;
+	const index_t number_of_vectors = 2;
+
+	SGSparseMatrix<float64_t> m1(number_of_vectors, number_of_features);
+	SGSparseMatrix<float64_t> m2(number_of_vectors, number_of_features);
+
+	for (int i = 0; i < number_of_vectors; i++)
+	{
+		m1.sparse_matrix[i] = SGSparseVector<float64_t>(number_of_vectors);
+		m2.sparse_matrix[i] = SGSparseVector<float64_t>(number_of_vectors);
+
+		for (int j = 0; j < number_of_features; j++)
+		{
+			m1.sparse_matrix[i].features[j].feat_index = 0;
+			m1.sparse_matrix[i].features[j].entry = 1;
+			m2.sparse_matrix[i].features[j].feat_index = 0;
+			m2.sparse_matrix[i].features[j].entry = 1;
+		}
+	}
+
+	EXPECT_TRUE(m1.equals(m1));
+	EXPECT_TRUE(m1.equals(m2));
+	EXPECT_TRUE(m2.equals(m1));
+
+	m1.sparse_matrix[0].features[0].feat_index = 1;
+	EXPECT_FALSE(m1.equals(m2));
+	EXPECT_FALSE(m2.equals(m1));
+	m1.sparse_matrix[0].features[0].feat_index = 0;
+
+	m1.sparse_matrix[1].features[1].entry = 2;
+	EXPECT_FALSE(m1.equals(m2));
+	EXPECT_FALSE(m2.equals(m1));
+}
+
+TEST(SGSparseMatrix, equals_different_shape)
+{
+	SGSparseMatrix<float64_t> m1(2, 2);
+	SGSparseMatrix<float64_t> m2(2, 3);
+	EXPECT_FALSE(m1.equals(m2));
+	EXPECT_FALSE(m2.equals(m1));
+}

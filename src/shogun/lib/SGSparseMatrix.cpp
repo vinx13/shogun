@@ -282,6 +282,40 @@ template<class T> void SGSparseMatrix<T>::from_dense(SGMatrix<T> full)
 	SG_FREE(num_feat_entries);
 }
 
+template <class T>
+bool SGSparseMatrix<T>::operator==(const SGSparseMatrix<T>& other) const
+{
+	if (num_vectors != other.num_vectors)
+		return false;
+
+	if (num_features != other.num_features)
+		return false;
+
+	if (sparse_matrix != other.sparse_matrix)
+		return false;
+
+	return true;
+}
+
+template <class T>
+bool SGSparseMatrix<T>::equals(const SGSparseMatrix<T>& other) const
+{
+	// same instance
+	if (*this == other)
+		return true;
+
+	// different size
+	if (num_vectors != other.num_vectors || num_features != other.num_features)
+		return false;
+
+	for (int i = 0; i < num_vectors; i++)
+	{
+		if (!sparse_matrix[i].equals(other.sparse_matrix[i]))
+			return false;
+	}
+	return true;
+}
+
 template class SGSparseMatrix<bool>;
 template class SGSparseMatrix<char>;
 template class SGSparseMatrix<int8_t>;
