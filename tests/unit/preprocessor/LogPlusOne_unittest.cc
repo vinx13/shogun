@@ -25,8 +25,7 @@ TEST(LogPlusOne, apply_to_feature_matrix)
 	CLogPlusOne* preproc = new CLogPlusOne();
 	preproc->init(feats);
 
-	feats->add_preprocessor(preproc);
-	feats->apply_preprocessor();
+	preproc->apply_to_feature_matrix(feats);
 
 	for (index_t i = 0; i < num_vectors; i++)
 	{
