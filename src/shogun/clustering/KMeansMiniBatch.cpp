@@ -117,6 +117,7 @@ void CKMeansMiniBatch::minibatch_KMeans()
 			{
 				c_alive[c]=(1.0-eta)*c_alive[c]+eta*x[c];
 			}
+			rhs_mus->set_feature_vector(c_alive, near);
 		}
 	}
 	SG_UNREF(lhs);
