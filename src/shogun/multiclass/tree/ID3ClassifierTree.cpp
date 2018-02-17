@@ -320,14 +320,12 @@ void CID3ClassifierTree::prune_tree_machine(CDenseFeatures<float64_t>* feats,
 			}
 		}
 
-		feats->add_subset(subset);
-		gnd_truth->add_subset(subset);
+		auto feats_subset = feats->view(subset);
+		auto gnd_truth_subset = gnd_truth->view(subset);
 
 		// prune the child subtree
-		prune_tree_machine(feats, gnd_truth, child, epsilon);
+		prune_tree_machine(feats_subset, gnd_truth_subset, child, epsilon);
 
-		feats->remove_subset();
-		gnd_truth->remove_subset();
 
 		SG_UNREF(child);
 	}
