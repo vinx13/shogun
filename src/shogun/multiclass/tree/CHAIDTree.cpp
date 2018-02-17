@@ -364,9 +364,10 @@ CTreeMachineNode<CHAIDTreeNodeData>* CCHAIDTree::CHAIDtrain(CFeatures* data, SGV
 			subweights[j]=weights[feat_index->get_element(j)];
 		}
 
-		data->add_subset(subset);
-		labels->add_subset(subset);
-		node_t* child=CHAIDtrain(data,subweights,labels,level+1);
+		auto data_subset = data->view(subset);
+		auto labels_subset = labels->view(subset);
+		node_t* child =
+		    CHAIDtrain(data_subset, subweights, labels_subset, level + 1);
 		node->add_child(child);
 
 		node->data.attribute_id=attr_min;
@@ -399,8 +400,6 @@ CTreeMachineNode<CHAIDTreeNodeData>* CCHAIDTree::CHAIDtrain(CFeatures* data, SGV
 			node->data.distinct_features[j]=ufeats_best[j];
 
 		SG_UNREF(feat_index);
-		data->remove_subset();
-		labels->remove_subset();
 	}
 
 	return node;
