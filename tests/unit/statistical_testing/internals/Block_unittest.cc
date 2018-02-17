@@ -68,12 +68,10 @@ TEST(Block, create_blocks)
 	std::iota(inds.vector, inds.vector+inds.vlen, 0);
 	for (size_t i=0; i<blocks.size(); ++i)
 	{
-		feats_p->add_subset(inds);
-		SGMatrix<float64_t> subset=feats_p->get_feature_matrix();
+		SGMatrix<float64_t> subset = feats_p->view(inds)->get_feature_matrix();
 		auto block_feats=static_cast<CFeatures*>(blocks[i]);
 		SGMatrix<float64_t> block_matrix=dynamic_cast<feat_type*>(block_feats)->get_feature_matrix();
 		ASSERT_TRUE(subset.equals(block_matrix));
-		feats_p->remove_subset();
 		std::for_each(inds.vector, inds.vector+inds.vlen, [&blocksize](index_t& val) { val+=blocksize; });
 	}
 

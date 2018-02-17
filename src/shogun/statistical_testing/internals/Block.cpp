@@ -45,14 +45,12 @@ Block::Block(CFeatures* feats, index_t index, index_t size) : m_feats(feats)
 	// we want this object to be alive till the last block is free'd
 	SG_REF(m_feats);
 
-	// create a shallow copy and subset current block separately
-	CFeatures* block=feats->shallow_subset_copy();
-
 	SGVector<index_t> inds(size);
 	std::iota(inds.vector, inds.vector+inds.vlen, index*size);
-	block->add_subset(inds);
 
-	m_block=block;
+	auto block = feats->view(inds);
+	m_block = block;
+	SG_REF(m_block);
 }
 
 Block::Block(const Block& other) : m_block(other.m_block), m_feats(other.m_feats)
