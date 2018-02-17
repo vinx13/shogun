@@ -595,11 +595,8 @@ TEST_F(GaussianProcessClassification, apply_preprocessor_and_binary)
 	CRescaleFeatures* preproc=new CRescaleFeatures();
 	preproc->init(features_train);
 
-	features_train->add_preprocessor(preproc);
-	features_train->apply_preprocessor();
-
-	features_test->add_preprocessor(preproc);
-	features_test->apply_preprocessor();
+	preproc->apply_to_feature_matrix(features_train);
+	preproc->apply_to_feature_matrix(features_test);
 
 	// logit likelihood
 	CLogitLikelihood* likelihood=new CLogitLikelihood();
