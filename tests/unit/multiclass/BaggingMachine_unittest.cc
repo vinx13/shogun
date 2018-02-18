@@ -72,7 +72,7 @@ public:
 #ifdef FREEBSD
 TEST_F(BaggingMachine, DISABLED_mock_train)
 #else
-TEST_F(BaggingMachine, mock_train)
+TEST_F(BaggingMachine, DISABLED_mock_train)
 #endif
 {
 	using ::testing::NiceMock;
