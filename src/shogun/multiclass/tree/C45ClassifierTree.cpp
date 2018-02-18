@@ -296,10 +296,9 @@ CTreeMachineNode<C45TreeNodeData>* CC45ClassifierTree::C45train(CFeatures* data,
 			if (CMath::fequals(feature_cache[p],MISSING,0))
 				continue;
 
-			if (feature_cache[p]<=threshold)
-				feats->get_feature_vector(p)[best_feature_index]=0.;
-			else
-				feats->get_feature_vector(p)[best_feature_index]=1.;
+			auto feat = feats->get_feature_vector(p);
+			feat[best_feature_index] = feature_cache[p] <= threshold ? 0. : 1.;
+			feats->set_feature_vector(feat, p);
 		}
 	}
 
@@ -414,8 +413,12 @@ CTreeMachineNode<C45TreeNodeData>* CC45ClassifierTree::C45train(CFeatures* data,
 	if (!m_nominal[feature_id_vector[best_feature_index]])
 	{
 		// restore data matrix
-		for(int32_t p=0;p<num_vecs;p++)
-			feats->get_feature_vector(p)[best_feature_index]=feature_cache[p];
+		for (int32_t p = 0; p < num_vecs; p++)
+		{
+			auto feat = feats->get_feature_vector(p);
+			feat[best_feature_index] = feature_cache[p];
+			feats->set_feature_vector(feat, p);
+		}
 	}
 
 	return node;
@@ -465,14 +468,9 @@ void CC45ClassifierTree::prune_tree_from_current_node(CDenseFeatures<float64_t>*
 				}
 			}
 
-			feats->add_subset(subset);
-			gnd_truth->add_subset(subset);
-
 			// prune the child subtree
-			prune_tree_from_current_node(feats,gnd_truth,child,epsilon);
-
-			feats->remove_subset();
-			gnd_truth->remove_subset();
+			prune_tree_from_current_node(
+			    feats->view(subset), gnd_truth->view(subset), child, epsilon);
 
 			SG_UNREF(child);
 		}
@@ -507,23 +505,19 @@ void CC45ClassifierTree::prune_tree_from_current_node(CDenseFeatures<float64_t>*
 		// count_left is 0 if entire validation data in current node moves to only right child
 		if (count_left>0)
 		{
-			feats->add_subset(left_subset);
-			gnd_truth->add_subset(left_subset);
 			// prune the left child subtree
-			prune_tree_from_current_node(feats,gnd_truth,left_child,epsilon);
-			feats->remove_subset();
-			gnd_truth->remove_subset();
+			prune_tree_from_current_node(
+			    feats->view(left_subset), gnd_truth->view(left_subset),
+			    left_child, epsilon);
 		}
 
 		// count_left is equal to num_cols if entire validation data in current node moves only to left child
 		if (count_left<feature_matrix.num_cols)
 		{
-			feats->add_subset(right_subset);
-			gnd_truth->add_subset(right_subset);
 			// prune the right child subtree
-			prune_tree_from_current_node(feats,gnd_truth,right_child,epsilon);
-			feats->remove_subset();
-			gnd_truth->remove_subset();
+			prune_tree_from_current_node(
+			    feats->view(right_subset), gnd_truth->view(right_subset),
+			    right_child, epsilon);
 		}
 
 		SG_UNREF(left_child);
