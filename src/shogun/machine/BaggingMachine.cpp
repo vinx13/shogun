@@ -184,21 +184,6 @@ bool CBaggingMachine::train_machine(CFeatures* data)
 		ASSERT(c != NULL);
 		SGVector<index_t> idx(rnd_indicies.get_column_vector(i), m_bag_size, false);
 
-		CFeatures* features;
-		CLabels* labels;
-
-		if (get_global_parallel()->get_num_threads()==1)
-		{
-			features = m_features;
-			labels = m_labels;
-		}
-		else
-		{
-			features = m_features->shallow_subset_copy();
-			labels = m_labels->shallow_subset_copy();
-		}
-
-		labels->add_subset(idx);
 		/* TODO:
 		   if it's a binary labeling ensure that
 		   there's always samples of both classes
@@ -215,12 +200,9 @@ bool CBaggingMachine::train_machine(CFeatures* data)
 			}
 		}
 		*/
-		features->add_subset(idx);
 		set_machine_parameters(c,idx);
-		c->set_labels(labels);
-		c->train(features);
-		features->remove_subset();
-		labels->remove_subset();
+		c->set_labels(m_labels->view(idx));
+		c->train(m_features->view(idx));
 
 		#pragma omp critical
 		{
@@ -230,12 +212,6 @@ bool CBaggingMachine::train_machine(CFeatures* data)
 
 		// add trained machine to bag array
 		m_bags->push_back(c);
-		}
-
-		if (get_global_parallel()->get_num_threads()!=1)
-		{
-			SG_UNREF(features);
-			SG_UNREF(labels);
 		}
 
 		SG_UNREF(c);
