@@ -107,7 +107,17 @@ template<class ST> ST* CDenseFeatures<ST>::get_feature_vector(int32_t num, int32
 	if (!feat)
 		dofree = true;
 
-	auto feat_vec = feature_matrix.get_column(real_num);
+	SGVector<ST> feat_vec;
+	if (!feature_matrix.matrix)
+	{
+		feat = compute_feature_vector(num, len, feat);
+		feat_vec = SGVector<ST>(feat, len, false);
+	}
+	else
+	{
+		feat_vec = feature_matrix.get_column(real_num);
+	}
+
 	for (index_t i = 0; i < get_num_preprocessors(); ++i)
 	{
 		auto pre = static_cast<CDensePreprocessor<ST>*>(get_preprocessor(i));
