@@ -145,6 +145,9 @@ template<class T>
 void CStreamingFileFromDenseFeatures<T>::get_vector(T*& vector,
 		int32_t& num_feat)
 {
+	if (vector)
+		delete[] vector;
+
 	if (vector_num>=features->get_num_vectors())
 	{
 		vector=NULL;
@@ -152,9 +155,10 @@ void CStreamingFileFromDenseFeatures<T>::get_vector(T*& vector,
 		return;
 	}
 
-	SGVector<T> sg_vector=features->get_feature_vector(vector_num);
+	const auto& sg_vector = features->get_feature_vector(vector_num);
 
-	vector=sg_vector.vector;
+	vector = new T[sg_vector.vlen];
+	sg_memcpy(vector, sg_vector.vector, sizeof(T) * sg_vector.vlen);
 	num_feat=sg_vector.vlen;
 	vector_num++;
 
