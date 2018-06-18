@@ -21,6 +21,12 @@ SGReferencedData::SGReferencedData(const SGReferencedData &orig)
 	ref();
 }
 
+SGReferencedData::SGReferencedData(SGReferencedData&& orig)
+	: m_refcount(orig.m_refcount)
+{
+	orig.m_refcount = nullptr;
+}
+
 SGReferencedData& SGReferencedData::operator= (const SGReferencedData &orig)
 {
 	if (this == &orig)
@@ -30,6 +36,20 @@ SGReferencedData& SGReferencedData::operator= (const SGReferencedData &orig)
 	copy_data(orig);
 	copy_refcount(orig);
 	ref();
+	return *this;
+}
+
+SGReferencedData& SGReferencedData::operator=(SGReferencedData&& orig)
+{
+	if (this == &orig)
+		return *this;
+
+	unref();
+	copy_data(orig);
+	copy_refcount(orig);
+	orig.m_refcount = nullptr;
+	orig.init_data();
+
 	return *this;
 }
 

@@ -25,8 +25,14 @@ class SGReferencedData
 		/** copy constructor */
 		SGReferencedData(const SGReferencedData &orig);
 
+		/** move contructor */
+		SGReferencedData(SGReferencedData&& orig);
+
 		/** override assignment operator to increase refcount on assignments */
 		SGReferencedData& operator= (const SGReferencedData &orig);
+
+		/** move assignemnt operator doesn't increase refcount */
+		SGReferencedData& operator=(SGReferencedData&& orig);
 
 		/** empty destructor
 		 *
