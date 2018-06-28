@@ -6,7 +6,7 @@ Features feats = features(f_feats)
 
 #![set_parameters]
 Kernel k = kernel("GaussianKernel", log_width=10.0)
-Converter diffusion_maps = converter("DiffusionMaps", target_dim=1, kernel=k, t=10)
+Transformer ica = transformer("DiffusionMaps", target_dim=1, kernel=k, t=10)
 #![set_parameters]
 
 #![apply_convert]
